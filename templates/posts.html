@@ -4,21 +4,32 @@
 <title>Posts</title>
 {% endblock %}
 
+
+
 {% block body %}
-<h1>testing Post</h1>
+<br>
+<div>
+    <h1 style="display: inline;">All Post</h1>
+<a href="/posts/new" style="display: inline;" class="btn btn-success float-right">+ New Post</a>
+</div>
+<br>
+<hr>
 
 <p>
     {% for post in posts %}
         <h3>{{post.title}}</h3>
 
         {% if post.author %}
-            <h4>By: {{post.author}}</h4>
+            <small>Written by: {{post.author}} on {{post.date_posted}} </small>
         {% else %}
-            <h4>By: N/A</h4>
+            <small>Written by Unkown</small>
         {% endif %}
 
+        <p style="white-space: pre-wrap;">{{post.content}}</p>
 
-        <p>{{post.content}}</p>
+         <a href="/posts/delete/{{post.id}}" class="btn btn-danger" >Delete</a>
+         <a href="/posts/edit/{{post.id}}" class="btn btn-primary" >Edit</a>
+        <hr>
     {% endfor %}
 
 
