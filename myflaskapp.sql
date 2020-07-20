@@ -1,11 +1,4 @@
--- phpMyAdmin SQL Dump
--- version 4.6.5.2
--- https://www.phpmyadmin.net/
---
--- Host: 127.0.0.1
--- Generation Time: Jul 19, 2020 at 09:54 PM
--- Server version: 10.1.21-MariaDB
--- PHP Version: 7.1.1
+
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 SET time_zone = "+00:00";
@@ -61,9 +54,7 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `name`, `username`, `email`, `password`) VALUES
-(1, 'john', 'lijah', 'revehe9225@htwern.com', '$5$rounds=535000$gFTTkelzKk0PXCp8$7CHxocw8lIfTKAgY'),
-(6, 'lekan', 'operation', 'posoda2279@2go-mail.com', '$5$rounds=535000$OQVGQDy8jvbj0WKc$C7tlvgYvSjU6iMaqSL69.KjCJtM3cekZQwifRsKmRP0'),
-(7, 'lekan oyeleke', 'sirloko', 'lekswyde205@gmail.com', '$5$rounds=535000$O..sxDqwxaAgQMUp$JfiwOhVyQbjke26jQTxqvstj9c/v7nQ4rkr479eb.w3');
+(1, 'john', 'lijah', 'revehe9225@htwern.com', '$5$rounds=535000$gFTTkelzKk0PXCp8$7CHxocw8lIfTKAgY');
 
 --
 -- Indexes for dumped tables
@@ -95,6 +86,3 @@ ALTER TABLE `blog`
 --
 ALTER TABLE `users`
   MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=8;
-/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
-/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
-/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;

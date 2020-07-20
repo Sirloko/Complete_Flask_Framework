@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, redirect, flash, url_for, ses
 from flask_mysqldb import MySQL
 from wtforms import Form, FormField, TextAreaField, PasswordField, validators, StringField
 from passlib.hash import sha256_crypt
-from datetime import datetime
+import os
 from functools import wraps
 
 app = Flask(__name__)
@@ -186,71 +186,54 @@ def add_article():
     return render_template('add_article.html', form=form)
 
 
+#Edit Blogpost / Edit Article Route
+@app.route('/edit_article/<string:id>', methods=['GET', 'POST'])
+@is_logged_in
+def edit_article(id):
+    # Create cursor
+    cur = mysql.connection.cursor()
+    # Get article by ID
+    result = cur.execute("SELECT * FROM blog WHERE id = %s", [id])
+    article = cur.fetchone()
 
+    #Get form
+    form = ArticleForm(request.form)
 
+    #Populate the fields
+    form.title.data = article['title']
+    form.content.data = article['content']
 
+    if request.method == 'POST' and form.validate():
+        title = request.form['title']
+        content = request.form['content']
+        #Create cursor
+        cur = mysql.connection.cursor()
+        #Execute
+        cur.execute("UPDATE blog SET title=%s, content=%s WHERE id = %s", (title, content, id))
+        #Commit to DB
+        mysql.connection.commit()
+        #Close connection
+        cur.close()
+        flash('Article Updated successfully', 'success')
+        return redirect(url_for('dashboard'))
+    return render_template('edit_article.html', form=form)
 
+#Delete Post / Detele article
+@app.route('/delete_article/<string:id>', methods=['POST'])
+@is_logged_in
+def delete_article(id):
+    #Create cursor
+    cur = mysql.connection.cursor()
 
-
-# @app.route('/home/<int:id>')
-# def hello(id):
-#     return str(id) + " No 1"
-
-@app.route('/posts', methods=['GET', 'POST'])
-def posts():
-
-    if request.method == 'POST':
-        post_title = request.form['title']
-        post_content = request.form['content']
-        post_author = request.form['author']
-        new_post = BlogPost(title = post_title, content = post_content, author=post_author)
-        db.session.add(new_post)
-        db.session.commit()
-        return redirect('/posts')
-    else:
-        some_posts = BlogPost.query.order_by(BlogPost.date_posted).all()
-        return render_template('posts.html', posts=some_posts)
-
-@app.route('/posts/delete/<int:id>')
-def delete(id):
-    post = BlogPost.query.get_or_404(id)
-    db.session.delete(post)
-    db.session.commit()
-    return redirect('/posts')
-
-@app.route('/posts/edit/<int:id>', methods=['GET', 'POST'])
-def edit(id):
-    post = BlogPost.query.get_or_404(id)
-    if request.method == 'POST':
-        
-        post.title = request.form['title']
-        post.content = request.form['content']
-        post.author = request.form['author']
-        
-        db.session.commit()
-        return redirect('/posts')
-    else:
-        return render_template('edit.html', post=post)
-
-@app.route('/posts/new', methods=['GET', 'POST'])
-def new_post():
-    if request.method == 'POST':
-        
-        post_title = request.form['title']
-        post_content = request.form['content']
-        post_author = request.form['author']
-        new_post = BlogPost(title = post_title, content = post_content, author=post_author)
-        db.session.add(new_post)
-        db.session.commit()
-        return redirect('/posts')
-    else:
-        return render_template('new_post.html')
-
-
-# @app.route('/only', methods=['POST'])
-# def get_req():
-#     return 'Authorized 2'
+    #Execute
+    cur.execute("DELETE FROM blog WHERE id = %s", [id])
+    #Commit to DB
+    mysql.connection.commit()
+    #Close connection
+    cur.close()
+    flash('Article Deleted successfully', 'success')
+    return redirect(url_for('dashboard'))
 
 if __name__ == "__main__":
-    app.secret_key='secure456'
+    app.secret_key= os.urandom(16)
     app.run(debug=True)
