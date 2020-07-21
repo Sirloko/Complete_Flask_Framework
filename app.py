@@ -4,6 +4,7 @@ from wtforms import Form, FormField, TextAreaField, PasswordField, validators, S
 from passlib.hash import sha256_crypt
 import os
 from functools import wraps
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
@@ -12,6 +13,30 @@ app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = 'eportal4school'
 app.config['MYSQL_DB'] = 'myflaskapp'
 app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+app.config['IMAGE_UPLOADS'] = 'static/img/uploads'
+app.config['ALLOWED_IMAGE_EXTENSIONS'] = ["PNG", "JPG", "JPEG", "GIF"]
+app.config['FLASK_ENV'] = 'development'
+# app.config['MAX_CONTENT_LENGTH'] = 1 * 1024 * 1024
+app.config['MAX_IMAGE_FILESIZE'] = 0.5 * 1024 * 1024
+
+def allowed_image(filename):
+    if not "." in filename:
+        return False
+    ext = filename.rsplit(".", 1)[1]
+
+    if ext.upper() in app.config["ALLOWED_IMAGE_EXTENSIONS"]:
+        return True
+    else:
+        return False
+
+
+
+def allowed_image_filesize(filesize):
+
+    if int(filesize) <= app.config['MAX_IMAGE_FILESIZE']:
+        return True
+    else:
+        return False
 
 # Initialize MYSQL
 mysql = MySQL(app)
@@ -234,6 +259,40 @@ def delete_article(id):
     flash('Article Deleted successfully', 'success')
     return redirect(url_for('dashboard'))
 
+
+@app.route('/upload', methods=['GET', 'POST'])
+def upload():
+    if request.method == 'POST':
+
+        if request.files:
+
+            if not allowed_image_filesize(request.cookies.get("filesize")):
+                flash('File exceeded MAX_IMAGE_FILESIZE', 'danger')
+                return redirect(request.url)
+
+            image = request.files["image"]
+            if image.filename == ' ':
+                flash('No selected file')
+
+                return redirect(request.url)
+            # check if the post request has the file part
+            if not allowed_image(image.filename):
+                flash('File type not allowed', 'danger')
+                return redirect(request.url)
+
+            else:
+                filename = secure_filename(image.filename)
+
+            image.save(os.path.join(app.config['IMAGE_UPLOADS'], filename))
+            flash('Image upload success', 'success')
+
+            return redirect(request.url)
+
+
+    return render_template('upload.html')
+
+
 if __name__ == "__main__":
-    app.secret_key= os.urandom(16)
+    # app.secret_key = "hdhhf45555hhfh"
+    app.secret_key = os.urandom(16)
     app.run(debug=True)
